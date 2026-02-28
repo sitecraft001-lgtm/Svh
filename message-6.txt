@@ -1,0 +1,2526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SiteCraft - Website Builder</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #1a1a2e;
+            --bg-secondary: #16213e;
+            --bg-tertiary: #0f3460;
+            --bg-surface: #1e1e3a;
+            --bg-hover: #2a2a4a;
+            --text-primary: #e0e0e0;
+            --text-secondary: #a0a0b0;
+            --text-muted: #6a6a7a;
+            --accent: #4a9eff;
+            --accent-hover: #3a8eef;
+            --accent-light: rgba(74, 158, 255, 0.15);
+            --border: #2a2a4a;
+            --border-light: #3a3a5a;
+            --danger: #ff4757;
+            --success: #2ed573;
+            --warning: #ffa502;
+            --shadow: 0 2px 10px rgba(0,0,0,0.3);
+            --shadow-lg: 0 8px 30px rgba(0,0,0,0.4);
+            --radius: 8px;
+            --radius-lg: 12px;
+            --transition: 0.2s ease;
+        }
+
+        body {
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+        /* SVG Icons */
+        .icon {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+            flex-shrink: 0;
+        }
+        .icon-sm { width: 16px; height: 16px; }
+        .icon-lg { width: 24px; height: 24px; }
+
+        /* Top Header Bar */
+        .header {
+            height: 56px;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            padding: 0 12px;
+            gap: 8px;
+            z-index: 100;
+            position: relative;
+        }
+
+        .header-logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 4px 8px;
+            cursor: pointer;
+            border-radius: var(--radius);
+            text-decoration: none;
+            color: var(--text-primary);
+            flex-shrink: 0;
+        }
+        .header-logo:hover { background: var(--bg-hover); }
+        .header-logo svg { width: 28px; height: 28px; }
+        .header-logo span {
+            font-size: 18px;
+            font-weight: 600;
+            letter-spacing: -0.5px;
+        }
+
+        .header-title {
+            flex: 1;
+            min-width: 0;
+        }
+        .header-title input {
+            background: transparent;
+            border: 1px solid transparent;
+            color: var(--text-primary);
+            font-size: 16px;
+            padding: 6px 10px;
+            border-radius: var(--radius);
+            width: 100%;
+            max-width: 300px;
+            outline: none;
+            transition: var(--transition);
+        }
+        .header-title input:hover { border-color: var(--border); }
+        .header-title input:focus { border-color: var(--accent); background: var(--bg-surface); }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            flex-shrink: 0;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 8px 16px;
+            border: none;
+            border-radius: var(--radius);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            white-space: nowrap;
+            color: var(--text-primary);
+            background: transparent;
+            font-family: inherit;
+        }
+        .btn:hover { background: var(--bg-hover); }
+        .btn-icon {
+            padding: 8px;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+        }
+        .btn-primary {
+            background: var(--accent);
+            color: #fff;
+        }
+        .btn-primary:hover { background: var(--accent-hover); }
+        .btn-outline {
+            border: 1px solid var(--border-light);
+        }
+        .btn-outline:hover { border-color: var(--accent); background: var(--accent-light); }
+        .btn-sm { padding: 4px 10px; font-size: 13px; }
+        .btn-danger { color: var(--danger); }
+        .btn-danger:hover { background: rgba(255, 71, 87, 0.1); }
+
+        /* Main Layout */
+        .main-layout {
+            display: flex;
+            height: calc(100vh - 56px);
+        }
+
+        /* Left Panel - Pages */
+        .pages-panel {
+            width: 240px;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            transition: var(--transition);
+            overflow: hidden;
+        }
+        .pages-panel.collapsed {
+            width: 0;
+            border: none;
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+            min-height: 48px;
+        }
+        .panel-header h3 {
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-secondary);
+        }
+
+        .pages-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px;
+        }
+
+        .page-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 14px;
+            color: var(--text-secondary);
+            position: relative;
+            user-select: none;
+        }
+        .page-item:hover { background: var(--bg-hover); color: var(--text-primary); }
+        .page-item.active {
+            background: var(--accent-light);
+            color: var(--accent);
+        }
+        .page-item .page-actions {
+            display: none;
+            margin-left: auto;
+        }
+        .page-item:hover .page-actions { display: flex; gap: 2px; }
+        .page-item .page-actions .btn-icon {
+            width: 24px;
+            height: 24px;
+            padding: 4px;
+        }
+
+        .subpage {
+            padding-left: 28px;
+        }
+
+        /* Canvas Area */
+        .canvas-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            min-width: 0;
+        }
+
+        /* Toolbar */
+        .toolbar {
+            display: flex;
+            align-items: center;
+            padding: 6px 12px;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+            gap: 2px;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            min-height: 44px;
+        }
+        .toolbar-divider {
+            width: 1px;
+            height: 24px;
+            background: var(--border);
+            margin: 0 4px;
+            flex-shrink: 0;
+        }
+        .toolbar-group {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            flex-shrink: 0;
+        }
+        .toolbar .btn-icon {
+            width: 32px;
+            height: 32px;
+            padding: 6px;
+            border-radius: 4px;
+        }
+        .toolbar .btn-icon:hover { background: var(--bg-hover); }
+        .toolbar .btn-icon.active { background: var(--accent-light); color: var(--accent); }
+
+        .toolbar select {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 13px;
+            outline: none;
+            cursor: pointer;
+        }
+        .toolbar select:focus { border-color: var(--accent); }
+
+        .toolbar input[type="color"] {
+            width: 28px;
+            height: 28px;
+            border: 2px solid var(--border);
+            border-radius: 4px;
+            cursor: pointer;
+            background: transparent;
+            padding: 2px;
+        }
+
+        /* Canvas */
+        .canvas-wrapper {
+            flex: 1;
+            overflow: auto;
+            background: var(--bg-primary);
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .canvas {
+            width: 100%;
+            max-width: 900px;
+            min-height: 600px;
+            background: var(--bg-surface);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .canvas.phone-preview { max-width: 375px; }
+        .canvas.tablet-preview { max-width: 768px; }
+
+        /* Section */
+        .section {
+            position: relative;
+            padding: 40px 60px;
+            min-height: 80px;
+            border: 2px solid transparent;
+            transition: border-color var(--transition);
+            cursor: default;
+        }
+        .section:hover { border-color: var(--border-light); }
+        .section.selected { border-color: var(--accent); }
+        .section-controls {
+            position: absolute;
+            top: -1px;
+            right: -1px;
+            display: none;
+            gap: 2px;
+            background: var(--accent);
+            border-radius: 0 0 0 var(--radius);
+            padding: 2px 4px;
+            z-index: 10;
+        }
+        .section.selected .section-controls,
+        .section:hover .section-controls { display: flex; }
+        .section-controls .btn-icon {
+            width: 28px;
+            height: 28px;
+            padding: 4px;
+            color: #fff;
+            border-radius: 4px;
+        }
+        .section-controls .btn-icon:hover { background: rgba(255,255,255,0.2); }
+
+        .section-drag-handle {
+            position: absolute;
+            left: 50%;
+            top: -12px;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 6px;
+            background: var(--accent);
+            border-radius: 3px;
+            cursor: grab;
+            display: none;
+        }
+        .section:hover .section-drag-handle { display: block; }
+
+        /* Section Types */
+        .section-hero {
+            text-align: center;
+            padding: 80px 60px;
+            background: linear-gradient(135deg, var(--bg-tertiary), var(--bg-secondary));
+        }
+        .section-hero h1 {
+            font-size: 42px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            line-height: 1.2;
+        }
+        .section-hero p {
+            font-size: 18px;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto 24px;
+            line-height: 1.6;
+        }
+        .section-hero .hero-btn {
+            display: inline-block;
+            padding: 12px 32px;
+            background: var(--accent);
+            color: #fff;
+            border-radius: 24px;
+            font-size: 16px;
+            font-weight: 500;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .section-text { padding: 40px 60px; }
+        .section-text h2 { font-size: 28px; font-weight: 600; margin-bottom: 12px; }
+        .section-text p { font-size: 16px; line-height: 1.7; color: var(--text-secondary); }
+
+        .section-image {
+            padding: 20px 60px;
+            text-align: center;
+        }
+        .section-image .image-placeholder {
+            width: 100%;
+            height: 300px;
+            background: var(--bg-hover);
+            border: 2px dashed var(--border-light);
+            border-radius: var(--radius);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            cursor: pointer;
+            color: var(--text-muted);
+            transition: var(--transition);
+        }
+        .section-image .image-placeholder:hover {
+            border-color: var(--accent);
+            background: var(--accent-light);
+        }
+        .section-image .image-placeholder img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: var(--radius);
+        }
+
+        .section-columns {
+            padding: 40px 60px;
+        }
+        .columns-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 24px;
+        }
+        .column-item {
+            padding: 24px;
+            background: var(--bg-hover);
+            border-radius: var(--radius);
+            text-align: center;
+        }
+        .column-item .column-icon {
+            width: 48px;
+            height: 48px;
+            margin: 0 auto 16px;
+            background: var(--accent-light);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent);
+        }
+        .column-item h3 { font-size: 18px; margin-bottom: 8px; }
+        .column-item p { font-size: 14px; color: var(--text-secondary); line-height: 1.5; }
+
+        .section-divider {
+            padding: 20px 60px;
+        }
+        .section-divider hr {
+            border: none;
+            height: 1px;
+            background: var(--border-light);
+        }
+
+        .section-embed {
+            padding: 20px 60px;
+        }
+        .embed-placeholder {
+            width: 100%;
+            height: 250px;
+            background: var(--bg-hover);
+            border: 2px dashed var(--border-light);
+            border-radius: var(--radius);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            color: var(--text-muted);
+            cursor: pointer;
+        }
+
+        .section-button {
+            padding: 30px 60px;
+            text-align: center;
+        }
+        .section-button .site-button {
+            display: inline-block;
+            padding: 12px 32px;
+            background: var(--accent);
+            color: #fff;
+            border-radius: var(--radius);
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+        }
+
+        .section-spacer {
+            padding: 0;
+            min-height: 60px;
+        }
+
+        .section-toc {
+            padding: 40px 60px;
+        }
+        .toc-list {
+            list-style: none;
+        }
+        .toc-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border);
+        }
+        .toc-list li a {
+            color: var(--accent);
+            text-decoration: none;
+            font-size: 15px;
+        }
+        .toc-list li a:hover { text-decoration: underline; }
+
+        .section-carousel {
+            padding: 30px 60px;
+        }
+        .carousel-container {
+            display: flex;
+            gap: 16px;
+            overflow-x: auto;
+            padding-bottom: 12px;
+        }
+        .carousel-slide {
+            min-width: 250px;
+            height: 180px;
+            background: var(--bg-hover);
+            border-radius: var(--radius);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            flex-shrink: 0;
+        }
+
+        .section-collapsible {
+            padding: 20px 60px;
+        }
+        .collapsible-item {
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            margin-bottom: 8px;
+            overflow: hidden;
+        }
+        .collapsible-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 18px;
+            cursor: pointer;
+            background: var(--bg-hover);
+            font-weight: 500;
+            transition: var(--transition);
+        }
+        .collapsible-header:hover { background: var(--bg-tertiary); }
+        .collapsible-body {
+            padding: 14px 18px;
+            display: none;
+            color: var(--text-secondary);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .collapsible-item.open .collapsible-body { display: block; }
+        .collapsible-item.open .collapsible-header svg { transform: rotate(180deg); }
+
+        .section-footer {
+            padding: 40px 60px;
+            background: var(--bg-secondary);
+            text-align: center;
+        }
+        .section-footer p { color: var(--text-muted); font-size: 14px; }
+
+        /* Right Panel - Insert/Properties */
+        .right-panel {
+            width: 300px;
+            background: var(--bg-secondary);
+            border-left: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            transition: var(--transition);
+            overflow: hidden;
+        }
+        .right-panel.collapsed {
+            width: 0;
+            border: none;
+        }
+
+        .right-tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+        .right-tab {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            color: var(--text-secondary);
+            border-bottom: 2px solid transparent;
+            transition: var(--transition);
+        }
+        .right-tab:hover { color: var(--text-primary); background: var(--bg-hover); }
+        .right-tab.active {
+            color: var(--accent);
+            border-bottom-color: var(--accent);
+        }
+
+        .right-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+        }
+
+        .insert-category {
+            margin-bottom: 20px;
+        }
+        .insert-category h4 {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+            padding: 0 4px;
+        }
+
+        .insert-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .insert-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            padding: 16px 8px;
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 12px;
+            color: var(--text-secondary);
+            text-align: center;
+        }
+        .insert-item:hover {
+            border-color: var(--accent);
+            background: var(--accent-light);
+            color: var(--accent);
+        }
+        .insert-item svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        .insert-item-wide {
+            grid-column: span 2;
+            flex-direction: row;
+            justify-content: flex-start;
+            padding: 12px 16px;
+            gap: 12px;
+        }
+
+        /* Properties Panel */
+        .property-group {
+            margin-bottom: 20px;
+        }
+        .property-group label {
+            display: block;
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+        .property-group input[type="text"],
+        .property-group input[type="url"],
+        .property-group input[type="number"],
+        .property-group textarea,
+        .property-group select {
+            width: 100%;
+            padding: 8px 12px;
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            color: var(--text-primary);
+            font-size: 14px;
+            outline: none;
+            font-family: inherit;
+            transition: var(--transition);
+        }
+        .property-group input:focus,
+        .property-group textarea:focus,
+        .property-group select:focus {
+            border-color: var(--accent);
+        }
+        .property-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        .property-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        .property-row > * { flex: 1; }
+
+        /* Add Section Button */
+        .add-section-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 16px;
+            border: 2px dashed var(--border-light);
+            border-radius: var(--radius);
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: var(--transition);
+            margin: 16px 60px;
+            font-size: 14px;
+            background: transparent;
+            width: calc(100% - 120px);
+        }
+        .add-section-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: var(--accent-light);
+        }
+
+        /* Modal / Dialog */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.6);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+        .modal-overlay.show { display: flex; }
+        .modal {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            width: 100%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+        }
+        .modal-header h3 { font-size: 18px; font-weight: 600; }
+        .modal-body { padding: 20px; }
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            padding: 12px 20px;
+            border-top: 1px solid var(--border);
+        }
+
+        /* Theme Panel */
+        .theme-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+        .theme-option {
+            height: 60px;
+            border-radius: var(--radius);
+            cursor: pointer;
+            border: 2px solid var(--border);
+            transition: var(--transition);
+            position: relative;
+        }
+        .theme-option:hover { border-color: var(--text-muted); }
+        .theme-option.active { border-color: var(--accent); }
+        .theme-option.active::after {
+            content: '';
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            width: 16px;
+            height: 16px;
+            background: var(--accent);
+            border-radius: 50%;
+        }
+
+        /* Notification */
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            padding: 12px 24px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-lg);
+            z-index: 2000;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: transform 0.3s ease;
+        }
+        .notification.show { transform: translateX(-50%) translateY(0); }
+
+        /* Editable content */
+        [contenteditable] {
+            outline: none;
+            cursor: text;
+        }
+        [contenteditable]:hover {
+            box-shadow: inset 0 0 0 1px var(--border-light);
+            border-radius: 2px;
+        }
+        [contenteditable]:focus {
+            box-shadow: inset 0 0 0 2px var(--accent);
+            border-radius: 2px;
+        }
+
+        /* Preview Banner */
+        .preview-banner {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 48px;
+            background: var(--accent);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            z-index: 999;
+            color: #fff;
+            font-weight: 500;
+        }
+        .preview-banner.show { display: flex; }
+        .preview-banner .btn {
+            background: rgba(255,255,255,0.2);
+            color: #fff;
+        }
+
+        /* Context Menu */
+        .context-menu {
+            position: fixed;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-lg);
+            min-width: 180px;
+            z-index: 500;
+            display: none;
+            padding: 4px;
+        }
+        .context-menu.show { display: block; }
+        .context-menu-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 12px;
+            font-size: 14px;
+            cursor: pointer;
+            border-radius: 4px;
+            color: var(--text-secondary);
+            transition: var(--transition);
+        }
+        .context-menu-item:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+        .context-menu-divider {
+            height: 1px;
+            background: var(--border);
+            margin: 4px 0;
+        }
+
+        /* Dropdown Menu */
+        .dropdown {
+            position: relative;
+        }
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-lg);
+            min-width: 200px;
+            z-index: 200;
+            display: none;
+            padding: 4px;
+            margin-top: 4px;
+        }
+        .dropdown-menu.show { display: block; }
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 12px;
+            font-size: 14px;
+            cursor: pointer;
+            border-radius: 4px;
+            color: var(--text-secondary);
+            transition: var(--transition);
+        }
+        .dropdown-item:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        /* Status bar */
+        .status-bar {
+            height: 28px;
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            padding: 0 12px;
+            font-size: 11px;
+            color: var(--text-muted);
+            gap: 16px;
+        }
+        .status-bar .status-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--success);
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .pages-panel { position: fixed; left: 0; top: 56px; bottom: 0; z-index: 50; width: 260px; transform: translateX(-100%); }
+            .pages-panel.open { transform: translateX(0); box-shadow: var(--shadow-lg); }
+            .pages-panel.collapsed { transform: translateX(-100%); }
+            .right-panel { position: fixed; right: 0; top: 56px; bottom: 0; z-index: 50; width: 300px; transform: translateX(100%); }
+            .right-panel.open { transform: translateX(0); box-shadow: var(--shadow-lg); }
+            .right-panel.collapsed { transform: translateX(100%); }
+        }
+
+        @media (max-width: 768px) {
+            .header-logo span { display: none; }
+            .header-title input { max-width: 150px; font-size: 14px; }
+            .section { padding: 24px 20px; }
+            .section-hero { padding: 40px 20px; }
+            .section-hero h1 { font-size: 28px; }
+            .section-hero p { font-size: 15px; }
+            .section-text { padding: 24px 20px; }
+            .section-text h2 { font-size: 22px; }
+            .section-image { padding: 16px 20px; }
+            .section-columns { padding: 24px 20px; }
+            .columns-grid { grid-template-columns: 1fr; }
+            .add-section-btn { margin: 16px 20px; width: calc(100% - 40px); }
+            .canvas-wrapper { padding: 10px; }
+            .toolbar { padding: 4px 8px; }
+            .btn-text-mobile { display: none; }
+        }
+
+        @media (max-width: 480px) {
+            .header { padding: 0 8px; }
+            .right-panel { width: 100%; }
+            .pages-panel { width: 100%; }
+        }
+
+        /* Link insert */
+        .link-form-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        .link-form-row input { flex: 1; }
+
+        /* Image upload area */
+        .upload-area {
+            border: 2px dashed var(--border-light);
+            border-radius: var(--radius);
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            color: var(--text-muted);
+        }
+        .upload-area:hover {
+            border-color: var(--accent);
+            background: var(--accent-light);
+        }
+
+        /* Background overlay for mobile panels */
+        .panel-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 40;
+            display: none;
+        }
+        .panel-overlay.show { display: block; }
+
+        /* Toggle switch */
+        .toggle {
+            position: relative;
+            width: 40px;
+            height: 22px;
+            background: var(--border-light);
+            border-radius: 11px;
+            cursor: pointer;
+            transition: var(--transition);
+            flex-shrink: 0;
+        }
+        .toggle.active { background: var(--accent); }
+        .toggle::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 18px;
+            height: 18px;
+            background: #fff;
+            border-radius: 50%;
+            transition: var(--transition);
+        }
+        .toggle.active::after { left: 20px; }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header class="header">
+        <button class="btn btn-icon" id="togglePages" title="Toggle pages panel">
+            <svg class="icon" viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
+        </button>
+        <a class="header-logo" href="#">
+            <svg viewBox="0 0 32 32" fill="none">
+                <rect x="2" y="2" width="28" height="28" rx="6" fill="#4a9eff"/>
+                <path d="M9 8h6v6H9zM17 8h6v6h-6zM9 16h6v6H9zM17 16h6v3a3 3 0 01-3 3h-3v-6z" fill="#fff" opacity="0.9"/>
+            </svg>
+            <span>SiteCraft</span>
+        </a>
+        <div class="header-title">
+            <input type="text" id="siteTitle" value="Untitled Site" placeholder="Site name">
+        </div>
+        <div class="header-actions">
+            <button class="btn btn-icon" id="undoBtn" title="Undo">
+                <svg class="icon" viewBox="0 0 24 24"><path d="M12.5 8c-2.65 0-5.05.99-6.9 2.6L2 7v9h9l-3.62-3.62c1.39-1.16 3.16-1.88 5.12-1.88 3.54 0 6.55 2.31 7.6 5.5l2.37-.78C21.08 11.03 17.15 8 12.5 8z"/></svg>
+            </button>
+            <button class="btn btn-icon" id="redoBtn" title="Redo">
+                <svg class="icon" viewBox="0 0 24 24"><path d="M18.4 10.6C16.55 8.99 14.15 8 11.5 8c-4.65 0-8.58 3.03-9.96 7.22L3.9 16c1.05-3.19 4.05-5.5 7.6-5.5 1.95 0 3.73.72 5.12 1.88L13 16h9V7l-3.6 3.6z"/></svg>
+            </button>
+            <div class="toolbar-divider"></div>
+            <button class="btn btn-icon" id="previewBtn" title="Preview">
+                <svg class="icon" viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+            </button>
+            <div class="dropdown">
+                <button class="btn btn-icon" id="moreBtn" title="More options">
+                    <svg class="icon" viewBox="0 0 24 24"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                </button>
+                <div class="dropdown-menu" id="moreMenu">
+                    <div class="dropdown-item" onclick="duplicatePage()">
+                        <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                        Duplicate page
+                    </div>
+                    <div class="dropdown-item" onclick="openThemeModal()">
+                        <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9c.83 0 1.5-.67 1.5-1.5 0-.39-.15-.74-.39-1.01-.23-.26-.38-.61-.38-1 0-.83.67-1.5 1.5-1.5H16c2.76 0 5-2.24 5-5 0-4.42-4.03-8-9-8zm-5.5 9c-.83 0-1.5-.67-1.5-1.5S5.67 9 6.5 9 8 9.67 8 10.5 7.33 12 6.5 12zm3-4C8.67 8 8 7.33 8 6.5S8.67 5 9.5 5s1.5.67 1.5 1.5S10.33 8 9.5 8zm5 0c-.83 0-1.5-.67-1.5-1.5S13.67 5 14.5 5s1.5.67 1.5 1.5S15.33 8 14.5 8zm3 4c-.83 0-1.5-.67-1.5-1.5S16.67 9 17.5 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
+                        Themes
+                    </div>
+                    <div class="dropdown-item" onclick="showSiteSettings()">
+                        <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.07.62-.07.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+                        Site settings
+                    </div>
+                    <div class="context-menu-divider"></div>
+                    <div class="dropdown-item" onclick="exportSite()">
+                        <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+                        Download HTML
+                    </div>
+                    <div class="dropdown-item" onclick="importSite()">
+                        <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v2H5z"/></svg>
+                        Import
+                    </div>
+                </div>
+            </div>
+            <button class="btn btn-primary" id="publishBtn" onclick="publishSite()">
+                <svg class="icon icon-sm" viewBox="0 0 24 24" fill="#fff"><path d="M5 4v2h14V4H5zm0 10h4v6h6v-6h4l-7-7-7 7z"/></svg>
+                <span class="btn-text-mobile">Publish</span>
+            </button>
+            <button class="btn btn-icon" id="toggleInsert" title="Toggle insert panel">
+                <svg class="icon" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+            </button>
+        </div>
+    </header>
+
+    <!-- Panel Overlay (Mobile) -->
+    <div class="panel-overlay" id="panelOverlay"></div>
+
+    <!-- Main Layout -->
+    <div class="main-layout">
+        <!-- Left: Pages Panel -->
+        <aside class="pages-panel" id="pagesPanel">
+            <div class="panel-header">
+                <h3>Pages</h3>
+                <button class="btn btn-icon" onclick="addPage()" title="Add page" style="width:28px;height:28px;padding:4px;">
+                    <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+                </button>
+            </div>
+            <div class="pages-list" id="pagesList">
+                <div class="page-item active" data-page="home" onclick="switchPage('home')">
+                    <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+                    <span>Home</span>
+                    <div class="page-actions">
+                        <button class="btn btn-icon" onclick="event.stopPropagation(); renamePage('home')" title="Rename">
+                            <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="page-item" data-page="about" onclick="switchPage('about')">
+                    <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z"/></svg>
+                    <span>About</span>
+                    <div class="page-actions">
+                        <button class="btn btn-icon" onclick="event.stopPropagation(); renamePage('about')" title="Rename">
+                            <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+                        </button>
+                        <button class="btn btn-icon btn-danger" onclick="event.stopPropagation(); deletePage('about')" title="Delete">
+                            <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="page-item" data-page="contact" onclick="switchPage('contact')">
+                    <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+                    <span>Contact</span>
+                    <div class="page-actions">
+                        <button class="btn btn-icon" onclick="event.stopPropagation(); renamePage('contact')" title="Rename">
+                            <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+                        </button>
+                        <button class="btn btn-icon btn-danger" onclick="event.stopPropagation(); deletePage('contact')" title="Delete">
+                            <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Center: Canvas Area -->
+        <main class="canvas-area">
+            <!-- Toolbar -->
+            <div class="toolbar" id="toolbar">
+                <div class="toolbar-group">
+                    <select id="fontFamily" onchange="execCmd('fontName', this.value)" title="Font">
+                        <option value="Segoe UI">Segoe UI</option>
+                        <option value="Arial">Arial</option>
+                        <option value="Georgia">Georgia</option>
+                        <option value="Times New Roman">Times New Roman</option>
+                        <option value="Courier New">Courier New</option>
+                        <option value="Verdana">Verdana</option>
+                        <option value="Trebuchet MS">Trebuchet MS</option>
+                    </select>
+                    <select id="fontSize" onchange="execFontSize(this.value)" title="Size">
+                        <option value="1">Small</option>
+                        <option value="3" selected>Normal</option>
+                        <option value="5">Large</option>
+                        <option value="7">Huge</option>
+                    </select>
+                </div>
+                <div class="toolbar-divider"></div>
+                <div class="toolbar-group">
+                    <button class="btn btn-icon" onclick="execCmd('bold')" title="Bold">
+                        <svg class="icon" viewBox="0 0 24 24"><path d="M15.6 10.79c.97-.67 1.65-1.77 1.65-2.79 0-2.26-1.75-4-4-4H7v14h7.04c2.09 0 3.71-1.7 3.71-3.79 0-1.52-.86-2.82-2.15-3.42zM10 6.5h3c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5h-3v-3zm3.5 9H10v-3h3.5c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5z"/></svg>
+                    </button>
+                    <button class="btn btn-icon" onclick="execCmd('italic')" title="Italic">
+                        <svg class="icon" viewBox="0 0 24 24"><path d="M10 4v3h2.21l-3.42 8H6v3h8v-3h-2.21l3.42-8H18V4z"/></svg>
+                    </button>
+                    <button class="btn btn-icon" onclick="execCmd('underline')" title="Underline">
+                        <svg class="icon" viewBox="0 0 24 24"><path d="M12 17c3.31 0 6-2.69 6-6V3h-2.5v8c0 1.93-1.57 3.5-3.5 3.5S8.5 12.93 8.5 11V3H6v8c0 3.31 2.69 6 6 6zm-7 2v2h14v-2H5z"/></svg>
+                    </button>
+                    <button class="btn btn-icon" onclick="execCmd('strikeThrough')" title="Strikethrough">
+                        <svg class="icon" viewBox="0 0 24 24"><path d="M10 19h4v-3h-4v3zM5 4v3h5v3h4V7h5V4H5zM3 14h18v-2H3v2z"/></svg>
+                    </button>
+                </div>
+                <div class="toolbar-divider"></div>
+                <div class="toolbar-group">
+                    <input type="color" id="textColor" value="#e0e0e0" onchange="execCmd('foreColor', this.value)" title="Text color">
+                    <input type="color" id="bgColor" value="#1e1e3a" onchange="execCmd('hiliteColor', this.value)" title="Highlight">
+                </div>
+                <div class="toolbar-divider"></div>
+                <div class="toolbar-group">
+                    <button class="btn btn-icon" onclick="execCmd('justifyLeft')" title="Align left">
+                        <svg class="icon" viewBox="0 0 24 24"><path d="M15 15H3v2h12v-2zm0-8H3v2h12V7zM3 13h18v-2H3v2zm0 8h18v-2H3v2zM3 3v2h18V3H3z"/></svg>
+                    </button>
+                    <button class="btn btn-icon" onclick="execCmd('justifyCenter')" title="Align center">
+                        <svg class="icon" viewBox="0 0 24 24"><path d="M7 15v2h10v-2H7zm-4 6h18v-2H3v2zm0-8h18v-2H3v2zm4-6v2h10V7H7zM3 3v2h18V3H3z"/></svg>
+                    </button>
+                    <button class="btn btn-icon" onclick="execCmd('justifyRight')" title="Align right">
+                        <svg class="icon" viewBox="0 0 24 24"><path d="M3 21h18v-2H3v2zm6-4h12v-2H9v2zm-6-4h18v-2H3v2zm6-4h12V7H9v2zM3 3v2h18V3H3z"/></svg>
+                    </button>
+                </div>
+                <div class="toolbar-divider"></div>
+                <div class="toolbar-group">
+                    <button class="btn btn-icon" onclick="execCmd('insertOrderedList')" title="Numbered list">
+                        <svg class="icon" viewBox="0 0 24 24"><path d="M2 17h2v.5H3v1h1v.5H2v1h3v-4H2v1zm1-9h1V4H2v1h1v3zm-1 3h1.8L2 13.1v.9h3v-1H3.2L5 10.9V10H2v1zm5-6v2h14V5H7zm0 14h14v-2H7v2zm0-6h14v-2H7v2z"/></svg>
+                    </button>
+                    <button class="btn btn-icon" onclick="execCmd('insertUnorderedList')" title="Bulleted list">
+                        <svg class="icon" viewBox="0 0 24 24"><path d="M4 10.5c-.83 0-1.5.67-1.5 1.5s.67 1.5 1.5 1.5 1.5-.67 1.5-1.5-.67-1.5-1.5-1.5zm0-6c-.83 0-1.5.67-1.5 1.5S3.17 7.5 4 7.5 5.5 6.83 5.5 6 4.83 4.5 4 4.5zm0 12c-.83 0-1.5.68-1.5 1.5s.68 1.5 1.5 1.5 1.5-.68 1.5-1.5-.67-1.5-1.5-1.5zM7 19h14v-2H7v2zm0-6h14v-2H7v2zm0-8v2h14V5H7z"/></svg>
+                    </button>
+                </div>
+                <div class="toolbar-divider"></div>
+                <div class="toolbar-group">
+                    <button class="btn btn-icon" onclick="insertLink()" title="Insert link">
+                        <svg class="icon" viewBox="0 0 24 24"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/></svg>
+                    </button>
+                    <button class="btn btn-icon" onclick="execCmd('removeFormat')" title="Clear formatting">
+                        <svg class="icon" viewBox="0 0 24 24"><path d="M3.27 5L2 6.27l6.97 6.97L6.5 19h3l1.57-3.66L16.73 21 18 19.73 3.27 5zM6 5v.18L8.82 8h2.4l-.72 1.68 2.1 2.1L14.21 8H20V5H6z"/></svg>
+                    </button>
+                </div>
+                <div class="toolbar-divider"></div>
+                <div class="toolbar-group">
+                    <button class="btn btn-icon" id="deviceDesktop" onclick="setPreviewDevice('desktop')" title="Desktop" style="color: var(--accent);">
+                        <svg class="icon" viewBox="0 0 24 24"><path d="M21 2H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h7l-2 3v1h8v-1l-2-3h7c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H3V4h18v12z"/></svg>
+                    </button>
+                    <button class="btn btn-icon" id="deviceTablet" onclick="setPreviewDevice('tablet')" title="Tablet">
+                        <svg class="icon" viewBox="0 0 24 24"><path d="M18.5 0h-14C3.12 0 2 1.12 2 2.5v19C2 22.88 3.12 24 4.5 24h14c1.38 0 2.5-1.12 2.5-2.5v-19C21 1.12 19.88 0 18.5 0zm-7 23c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm7.5-4H4V3h15v16z"/></svg>
+                    </button>
+                    <button class="btn btn-icon" id="devicePhone" onclick="setPreviewDevice('phone')" title="Phone">
+                        <svg class="icon" viewBox="0 0 24 24"><path d="M16 1H8C6.34 1 5 2.34 5 4v16c0 1.66 1.34 3 3 3h8c1.66 0 3-1.34 3-3V4c0-1.66-1.34-3-3-3zm-2 20h-4v-1h4v1zm3.25-3H6.75V4h10.5v14z"/></svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Canvas Wrapper -->
+            <div class="canvas-wrapper" id="canvasWrapper">
+                <div class="canvas" id="canvas">
+                    <!-- Hero Section -->
+                    <div class="section section-hero" id="section-1" onclick="selectSection(this)">
+                        <div class="section-controls">
+                            <button class="btn btn-icon" onclick="event.stopPropagation(); moveSection(this.closest('.section'), -1)" title="Move up">
+                                <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z" fill="#fff"/></svg>
+                            </button>
+                            <button class="btn btn-icon" onclick="event.stopPropagation(); moveSection(this.closest('.section'), 1)" title="Move down">
+                                <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z" fill="#fff"/></svg>
+                            </button>
+                            <button class="btn btn-icon" onclick="event.stopPropagation(); duplicateSection(this.closest('.section'))" title="Duplicate">
+                                <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z" fill="#fff"/></svg>
+                            </button>
+                            <button class="btn btn-icon" onclick="event.stopPropagation(); deleteSection(this.closest('.section'))" title="Delete">
+                                <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" fill="#fff"/></svg>
+                            </button>
+                        </div>
+                        <h1 contenteditable="true">Welcome to Your Site</h1>
+                        <p contenteditable="true">Create beautiful websites effortlessly with SiteCraft. Drag, drop, and publish in minutes.</p>
+                        <div class="hero-btn" contenteditable="true">Get Started</div>
+                    </div>
+
+                    <!-- Text Section -->
+                    <div class="section section-text" id="section-2" onclick="selectSection(this)">
+                        <div class="section-controls">
+                            <button class="btn btn-icon" onclick="event.stopPropagation(); moveSection(this.closest('.section'), -1)" title="Move up">
+                                <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z" fill="#fff"/></svg>
+                            </button>
+                            <button class="btn btn-icon" onclick="event.stopPropagation(); moveSection(this.closest('.section'), 1)" title="Move down">
+                                <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z" fill="#fff"/></svg>
+                            </button>
+                            <button class="btn btn-icon" onclick="event.stopPropagation(); duplicateSection(this.closest('.section'))" title="Duplicate">
+                                <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z" fill="#fff"/></svg>
+                            </button>
+                            <button class="btn btn-icon" onclick="event.stopPropagation(); deleteSection(this.closest('.section'))" title="Delete">
+                                <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" fill="#fff"/></svg>
+                            </button>
+                        </div>
+                        <h2 contenteditable="true">About Us</h2>
+                        <p contenteditable="true">SiteCraft is a powerful, intuitive website builder that gives you all the tools you need to create stunning websites. No coding required — just your creativity and our drag-and-drop interface.</p>
+                    </div>
+
+                    <!-- Columns Section -->
+                    <div class="section section-columns" id="section-3" onclick="selectSection(this)">
+                        <div class="section-controls">
+                            <button class="btn btn-icon" onclick="event.stopPropagation(); moveSection(this.closest('.section'), -1)" title="Move up">
+                                <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z" fill="#fff"/></svg>
+                            </button>
+                            <button class="btn btn-icon" onclick="event.stopPropagation(); moveSection(this.closest('.section'), 1)" title="Move down">
+                                <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z" fill="#fff"/></svg>
+                            </button>
+                            <button class="btn btn-icon" onclick="event.stopPropagation(); duplicateSection(this.closest('.section'))" title="Duplicate">
+                                <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z" fill="#fff"/></svg>
+                            </button>
+                            <button class="btn btn-icon" onclick="event.stopPropagation(); deleteSection(this.closest('.section'))" title="Delete">
+                                <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" fill="#fff"/></svg>
+                            </button>
+                        </div>
+                        <div class="columns-grid">
+                            <div class="column-item">
+                                <div class="column-icon">
+                                    <svg class="icon icon-lg" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" fill="currentColor"/></svg>
+                                </div>
+                                <h3 contenteditable="true">Easy to Use</h3>
+                                <p contenteditable="true">Intuitive drag-and-drop interface that anyone can master.</p>
+                            </div>
+                            <div class="column-item">
+                                <div class="column-icon">
+                                    <svg class="icon icon-lg" viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z" fill="currentColor"/></svg>
+                                </div>
+                                <h3 contenteditable="true">Secure</h3>
+                                <p contenteditable="true">Built with security best practices to protect your site.</p>
+                            </div>
+                            <div class="column-item">
+                                <div class="column-icon">
+                                    <svg class="icon icon-lg" viewBox="0 0 24 24"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z" fill="currentColor"/></svg>
+                                </div>
+                                <h3 contenteditable="true">Fast</h3>
+                                <p contenteditable="true">Lightning-fast load times keep your visitors engaged.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Image Section -->
+                    <div class="section section-image" id="section-4" onclick="selectSection(this)">
+                        <div class="section-controls">
+                            <button class="btn btn-icon" onclick="event.stopPropagation(); moveSection(this.closest('.section'), -1)" title="Move up">
+                                <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z" fill="#fff"/></svg>
+                            </button>
+                            <button class="btn btn-icon" onclick="event.stopPropagation(); moveSection(this.closest('.section'), 1)" title="Move down">
+                                <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z" fill="#fff"/></svg>
+                            </button>
+                            <button class="btn btn-icon" onclick="event.stopPropagation(); duplicateSection(this.closest('.section'))" title="Duplicate">
+                                <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z" fill="#fff"/></svg>
+                            </button>
+                            <button class="btn btn-icon" onclick="event.stopPropagation(); deleteSection(this.closest('.section'))" title="Delete">
+                                <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" fill="#fff"/></svg>
+                            </button>
+                        </div>
+                        <div class="image-placeholder" onclick="event.stopPropagation(); uploadImage(this)">
+                            <svg class="icon icon-lg" viewBox="0 0 24 24" style="width:48px;height:48px;"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>
+                            <span>Click to upload image</span>
+                        </div>
+                    </div>
+
+                    <!-- Collapsible Section -->
+                    <div class="section section-collapsible" id="section-5" onclick="selectSection(this)">
+                        <div class="section-controls">
+                            <button class="btn btn-icon" onclick="event.stopPropagation(); moveSection(this.closest('.section'), -1)" title="Move up">
+                                <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z" fill="#fff"/></svg>
+                            </button>
+                            <button class="btn btn-icon" onclick="event.stopPropagation(); moveSection(this.closest('.section'), 1)" title="Move down">
+                                <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z" fill="#fff"/></svg>
+                            </button>
+                            <button class="btn btn-icon" onclick="event.stopPropagation(); duplicateSection(this.closest('.section'))" title="Duplicate">
+                                <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z" fill="#fff"/></svg>
+                            </button>
+                            <button class="btn btn-icon" onclick="event.stopPropagation(); deleteSection(this.closest('.section'))" title="Delete">
+                                <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" fill="#fff"/></svg>
+                            </button>
+                        </div>
+                        <h2 contenteditable="true" style="margin-bottom:16px;">FAQ</h2>
+                        <div class="collapsible-item open">
+                            <div class="collapsible-header" onclick="event.stopPropagation(); toggleCollapsible(this)">
+                                <span contenteditable="true">How do I get started?</span>
+                                <svg class="icon icon-sm" viewBox="0 0 24 24" style="transition:0.2s;"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg>
+                            </div>
+                            <div class="collapsible-body" contenteditable="true">Simply click on any element to edit it. Use the insert panel on the right to add new sections. It's that easy!</div>
+                        </div>
+                        <div class="collapsible-item">
+                            <div class="collapsible-header" onclick="event.stopPropagation(); toggleCollapsible(this)">
+                                <span contenteditable="true">Can I use custom domains?</span>
+                                <svg class="icon icon-sm" viewBox="0 0 24 24" style="transition:0.2s;"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg>
+                            </div>
+                            <div class="collapsible-body" contenteditable="true">Yes! You can connect your own domain name to any site you build with SiteCraft.</div>
+                        </div>
+                        <div class="collapsible-item">
+                            <div class="collapsible-header" onclick="event.stopPropagation(); toggleCollapsible(this)">
+                                <span contenteditable="true">Is SiteCraft free?</span>
+                                <svg class="icon icon-sm" viewBox="0 0 24 24" style="transition:0.2s;"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg>
+                            </div>
+                            <div class="collapsible-body" contenteditable="true">SiteCraft offers a generous free tier with essential features. Premium plans unlock advanced capabilities.</div>
+                        </div>
+                    </div>
+
+                    <!-- Footer Section -->
+                    <div class="section section-footer" id="section-6" onclick="selectSection(this)">
+                        <div class="section-controls">
+                            <button class="btn btn-icon" onclick="event.stopPropagation(); moveSection(this.closest('.section'), -1)" title="Move up">
+                                <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z" fill="#fff"/></svg>
+                            </button>
+                            <button class="btn btn-icon" onclick="event.stopPropagation(); moveSection(this.closest('.section'), 1)" title="Move down">
+                                <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z" fill="#fff"/></svg>
+                            </button>
+                            <button class="btn btn-icon" onclick="event.stopPropagation(); duplicateSection(this.closest('.section'))" title="Duplicate">
+                                <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z" fill="#fff"/></svg>
+                            </button>
+                            <button class="btn btn-icon" onclick="event.stopPropagation(); deleteSection(this.closest('.section'))" title="Delete">
+                                <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" fill="#fff"/></svg>
+                            </button>
+                        </div>
+                        <p contenteditable="true">© 2024 Your Website. Built with SiteCraft.</p>
+                    </div>
+
+                    <!-- Add Section Button -->
+                    <button class="add-section-btn" onclick="openInsertPanel()">
+                        <svg class="icon" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+                        Add section
+                    </button>
+                </div>
+            </div>
+
+            <!-- Status Bar -->
+            <div class="status-bar">
+                <div class="status-item">
+                    <span class="status-dot"></span>
+                    <span>Auto-saved</span>
+                </div>
+                <div class="status-item" id="sectionCount">6 sections</div>
+                <div class="status-item" id="currentPageStatus">Page: Home</div>
+            </div>
+        </main>
+
+        <!-- Right Panel: Insert / Properties -->
+        <aside class="right-panel" id="rightPanel">
+            <div class="right-tabs">
+                <div class="right-tab active" data-tab="insert" onclick="switchRightTab('insert')">Insert</div>
+                <div class="right-tab" data-tab="properties" onclick="switchRightTab('properties')">Properties</div>
+                <div class="right-tab" data-tab="themes" onclick="switchRightTab('themes')">Themes</div>
+            </div>
+
+            <!-- Insert Tab -->
+            <div class="right-content" id="tab-insert">
+                <div class="insert-category">
+                    <h4>Layout</h4>
+                    <div class="insert-grid">
+                        <div class="insert-item" onclick="addSection('hero')">
+                            <svg viewBox="0 0 24 24"><path d="M21 3H3c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H3V5h18v14zM5 15h14v3H5z"/></svg>
+                            Hero Banner
+                        </div>
+                        <div class="insert-item" onclick="addSection('text')">
+                            <svg viewBox="0 0 24 24"><path d="M5 4v3h5.5v12h3V7H19V4z"/></svg>
+                            Text Block
+                        </div>
+                        <div class="insert-item" onclick="addSection('image')">
+                            <svg viewBox="0 0 24 24"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>
+                            Image
+                        </div>
+                        <div class="insert-item" onclick="addSection('columns')">
+                            <svg viewBox="0 0 24 24"><path d="M10 18h5V5h-5v13zm-6 0h5V5H4v13zM16 5v13h5V5h-5z"/></svg>
+                            Columns
+                        </div>
+                    </div>
+                </div>
+
+                <div class="insert-category">
+                    <h4>Content</h4>
+                    <div class="insert-grid">
+                        <div class="insert-item" onclick="addSection('button')">
+                            <svg viewBox="0 0 24 24"><path d="M19 7H5c-1.1 0-2 .9-2 2v6c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V9c0-1.1-.9-2-2-2zm0 8H5V9h14v6z"/></svg>
+                            Button
+                        </div>
+                        <div class="insert-item" onclick="addSection('divider')">
+                            <svg viewBox="0 0 24 24"><path d="M2 12h20v1H2z"/></svg>
+                            Divider
+                        </div>
+                        <div class="insert-item" onclick="addSection('spacer')">
+                            <svg viewBox="0 0 24 24"><path d="M6 7h2.5L5 3.5 1.5 7H4v10H1.5L5 20.5 8.5 17H6V7zm4-2v2h12V5H10zm0 14h12v-2H10v2zm0-6h12v-2H10v2z"/></svg>
+                            Spacer
+                        </div>
+                        <div class="insert-item" onclick="addSection('embed')">
+                            <svg viewBox="0 0 24 24"><path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z"/></svg>
+                            Embed
+                        </div>
+                    </div>
+                </div>
+
+                <div class="insert-category">
+                    <h4>Components</h4>
+                    <div class="insert-grid">
+                        <div class="insert-item" onclick="addSection('collapsible')">
+                            <svg viewBox="0 0 24 24"><path d="M7 14l5-5 5 5z"/><path d="M2 4h20v2H2zM2 18h20v2H2z"/></svg>
+                            Collapsible
+                        </div>
+                        <div class="insert-item" onclick="addSection('toc')">
+                            <svg viewBox="0 0 24 24"><path d="M3 9h14V7H3v2zm0 4h14v-2H3v2zm0 4h14v-2H3v2zm16 0h2v-2h-2v2zm0-10v2h2V7h-2zm0 6h2v-2h-2v2z"/></svg>
+                            Contents
+                        </div>
+                        <div class="insert-item" onclick="addSection('carousel')">
+                            <svg viewBox="0 0 24 24"><path d="M7 19h10V4H7v15zm-5-2h4V6H2v11zM18 6v11h4V6h-4z"/></svg>
+                            Carousel
+                        </div>
+                        <div class="insert-item" onclick="addSection('footer')">
+                            <svg viewBox="0 0 24 24"><path d="M21 3H3c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H3v-3h18v3z"/></svg>
+                            Footer
+                        </div>
+                    </div>
+                </div>
+
+                <div class="insert-category">
+                    <h4>Media</h4>
+                    <div class="insert-grid">
+                        <div class="insert-item insert-item-wide" onclick="addSection('youtube')">
+                            <svg viewBox="0 0 24 24"><path d="M10 15l5.19-3L10 9v6m11.56-7.83c.13.47.22 1.1.28 1.9.07.8.1 1.49.1 2.09L22 12c0 2.19-.16 3.8-.44 4.83-.25.9-.83 1.48-1.73 1.73-.47.13-1.33.22-2.65.28-1.3.07-2.49.1-3.59.1L12 19c-4.19 0-6.8-.16-7.83-.44-.9-.25-1.48-.83-1.73-1.73-.13-.47-.22-1.1-.28-1.9-.07-.8-.1-1.49-.1-2.09L2 12c0-2.19.16-3.8.44-4.83.25-.9.83-1.48 1.73-1.73.47-.13 1.33-.22 2.65-.28 1.3-.07 2.49-.1 3.59-.1L12 5c4.19 0 6.8.16 7.83.44.9.25 1.48.83 1.73 1.73z"/></svg>
+                            YouTube Video
+                        </div>
+                        <div class="insert-item insert-item-wide" onclick="addSection('map')">
+                            <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                            Google Map
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Properties Tab -->
+            <div class="right-content" id="tab-properties" style="display:none;">
+                <div id="propertiesContent">
+                    <div style="text-align:center;padding:40px 20px;color:var(--text-muted);">
+                        <svg class="icon" viewBox="0 0 24 24" style="width:48px;height:48px;margin-bottom:12px;opacity:0.5;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+                        <p>Select a section to edit its properties</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Themes Tab -->
+            <div class="right-content" id="tab-themes" style="display:none;">
+                <div class="property-group">
+                    <label>Page Background</label>
+                    <input type="color" id="pageBgColor" value="#1e1e3a" onchange="document.getElementById('canvas').style.background=this.value" style="width:100%;height:40px;">
+                </div>
+                <div class="property-group">
+                    <label>Canvas Background</label>
+                    <div class="theme-grid">
+                        <div class="theme-option active" style="background: linear-gradient(135deg, #1e1e3a, #16213e);" onclick="applyTheme(this, '#1e1e3a')"></div>
+                        <div class="theme-option" style="background: linear-gradient(135deg, #1a1a2e, #0f3460);" onclick="applyTheme(this, '#1a1a2e')"></div>
+                        <div class="theme-option" style="background: linear-gradient(135deg, #2d2d44, #1a1a30);" onclick="applyTheme(this, '#2d2d44')"></div>
+                        <div class="theme-option" style="background: linear-gradient(135deg, #0d1117, #161b22);" onclick="applyTheme(this, '#0d1117')"></div>
+                        <div class="theme-option" style="background: linear-gradient(135deg, #1e293b, #0f172a);" onclick="applyTheme(this, '#1e293b')"></div>
+                        <div class="theme-option" style="background: linear-gradient(135deg, #292524, #1c1917);" onclick="applyTheme(this, '#292524')"></div>
+                    </div>
+                </div>
+                <div class="property-group">
+                    <label>Accent Color</label>
+                    <input type="color" id="accentColor" value="#4a9eff" onchange="changeAccentColor(this.value)" style="width:100%;height:40px;">
+                </div>
+                <div class="property-group">
+                    <label>Font Family</label>
+                    <select onchange="document.getElementById('canvas').style.fontFamily=this.value">
+                        <option value="'Segoe UI', sans-serif">Segoe UI</option>
+                        <option value="Arial, sans-serif">Arial</option>
+                        <option value="Georgia, serif">Georgia</option>
+                        <option value="'Trebuchet MS', sans-serif">Trebuchet MS</option>
+                        <option value="Verdana, sans-serif">Verdana</option>
+                        <option value="'Courier New', monospace">Courier New</option>
+                    </select>
+                </div>
+                <div class="property-group">
+                    <label>Section Padding</label>
+                    <select id="sectionPaddingSelect" onchange="changeSectionPadding(this.value)">
+                        <option value="20px 30px">Compact</option>
+                        <option value="40px 60px" selected>Normal</option>
+                        <option value="60px 80px">Spacious</option>
+                        <option value="80px 100px">Extra Spacious</option>
+                    </select>
+                </div>
+                <div class="property-group">
+                    <label>Border Radius</label>
+                    <select onchange="document.getElementById('canvas').style.borderRadius=this.value">
+                        <option value="0">None</option>
+                        <option value="8px">Small</option>
+                        <option value="12px" selected>Medium</option>
+                        <option value="20px">Large</option>
+                    </select>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <!-- Preview Banner -->
+    <div class="preview-banner" id="previewBanner">
+        <svg class="icon" viewBox="0 0 24 24" fill="#fff"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+        Preview Mode
+        <button class="btn btn-sm" onclick="exitPreview()">Exit Preview</button>
+    </div>
+
+    <!-- Theme Modal -->
+    <div class="modal-overlay" id="themeModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Site Themes</h3>
+                <button class="btn btn-icon" onclick="closeModal('themeModal')">
+                    <svg class="icon" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p style="color:var(--text-secondary);margin-bottom:16px;">Choose a theme for your site:</p>
+                <div class="theme-grid" style="grid-template-columns:repeat(2,1fr);gap:12px;">
+                    <div class="theme-option active" style="height:80px;background:linear-gradient(135deg,#1e1e3a,#16213e);border-radius:8px;" onclick="selectThemeOption(this,'dark-blue')"></div>
+                    <div class="theme-option" style="height:80px;background:linear-gradient(135deg,#0d1117,#161b22);border-radius:8px;" onclick="selectThemeOption(this,'github-dark')"></div>
+                    <div class="theme-option" style="height:80px;background:linear-gradient(135deg,#1e293b,#0f172a);border-radius:8px;" onclick="selectThemeOption(this,'slate')"></div>
+                    <div class="theme-option" style="height:80px;background:linear-gradient(135deg,#292524,#1c1917);border-radius:8px;" onclick="selectThemeOption(this,'warm-dark')"></div>
+                    <div class="theme-option" style="height:80px;background:linear-gradient(135deg,#14532d,#052e16);border-radius:8px;" onclick="selectThemeOption(this,'forest')"></div>
+                    <div class="theme-option" style="height:80px;background:linear-gradient(135deg,#4a1942,#2d1b69);border-radius:8px;" onclick="selectThemeOption(this,'purple')"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" onclick="closeModal('themeModal')">Cancel</button>
+                <button class="btn btn-primary" onclick="closeModal('themeModal'); showNotification('Theme applied!')">Apply</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="modal-overlay" id="settingsModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Site Settings</h3>
+                <button class="btn btn-icon" onclick="closeModal('settingsModal')">
+                    <svg class="icon" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="property-group">
+                    <label>Site Title</label>
+                    <input type="text" id="settingSiteTitle" value="Untitled Site">
+                </div>
+                <div class="property-group">
+                    <label>Site Description (SEO)</label>
+                    <textarea id="settingSiteDesc" placeholder="Describe your website for search engines..."></textarea>
+                </div>
+                <div class="property-group">
+                    <label>Favicon URL</label>
+                    <input type="url" id="settingFavicon" placeholder="https://example.com/favicon.ico">
+                </div>
+                <div class="property-group">
+                    <label>Navigation</label>
+                    <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;">
+                        <span style="font-size:14px;">Show navigation bar</span>
+                        <div class="toggle active" onclick="this.classList.toggle('active')"></div>
+                    </div>
+                    <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;">
+                        <span style="font-size:14px;">Show page title</span>
+                        <div class="toggle active" onclick="this.classList.toggle('active')"></div>
+                    </div>
+                </div>
+                <div class="property-group">
+                    <label>Analytics Code</label>
+                    <textarea id="settingAnalytics" placeholder="Paste your analytics tracking code..." style="font-family:monospace;font-size:12px;"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" onclick="closeModal('settingsModal')">Cancel</button>
+                <button class="btn btn-primary" onclick="saveSettings()">Save Settings</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Link Modal -->
+    <div class="modal-overlay" id="linkModal">
+        <div class="modal" style="max-width:400px;">
+            <div class="modal-header">
+                <h3>Insert Link</h3>
+                <button class="btn btn-icon" onclick="closeModal('linkModal')">
+                    <svg class="icon" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="property-group">
+                    <label>URL</label>
+                    <input type="url" id="linkUrl" placeholder="https://example.com">
+                </div>
+                <div class="property-group">
+                    <label>Display Text</label>
+                    <input type="text" id="linkText" placeholder="Click here">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" onclick="closeModal('linkModal')">Cancel</button>
+                <button class="btn btn-primary" onclick="applyLink()">Insert</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Embed Modal -->
+    <div class="modal-overlay" id="embedModal">
+        <div class="modal" style="max-width:500px;">
+            <div class="modal-header">
+                <h3>Embed Content</h3>
+                <button class="btn btn-icon" onclick="closeModal('embedModal')">
+                    <svg class="icon" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="property-group">
+                    <label>Embed Code or URL</label>
+                    <textarea id="embedCode" placeholder="Paste embed code or URL (YouTube, Google Maps, etc.)..." style="min-height:120px;font-family:monospace;font-size:12px;"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" onclick="closeModal('embedModal')">Cancel</button>
+                <button class="btn btn-primary" onclick="applyEmbed()">Embed</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div class="notification" id="notification">
+        <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+        <span id="notificationText">Saved!</span>
+    </div>
+
+    <!-- Context Menu -->
+    <div class="context-menu" id="contextMenu">
+        <div class="context-menu-item" onclick="contextAction('cut')">
+            <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M9.64 7.64c.23-.5.36-1.05.36-1.64 0-2.21-1.79-4-4-4S2 3.79 2 6s1.79 4 4 4c.59 0 1.14-.13 1.64-.36L10 12l-2.36 2.36C7.14 14.13 6.59 14 6 14c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4c0-.59-.13-1.14-.36-1.64L12 14l7 7h3v-1L9.64 7.64zM6 8c-1.1 0-2-.89-2-2s.9-2 2-2 2 .89 2 2-.9 2-2 2zm0 12c-1.1 0-2-.89-2-2s.9-2 2-2 2 .89 2 2-.9 2-2 2zm6-7.5c-.28 0-.5-.22-.5-.5s.22-.5.5-.5.5.22.5.5-.22.5-.5.5zM19 3l-6 6 2 2 7-7V3z"/></svg>
+            Cut
+        </div>
+        <div class="context-menu-item" onclick="contextAction('copy')">
+            <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+            Copy
+        </div>
+        <div class="context-menu-item" onclick="contextAction('paste')">
+            <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M19 2h-4.18C14.4.84 13.3 0 12 0c-1.3 0-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm7 18H5V4h2v3h10V4h2v16z"/></svg>
+            Paste
+        </div>
+        <div class="context-menu-divider"></div>
+        <div class="context-menu-item" onclick="contextAction('duplicate')">
+            <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+            Duplicate section
+        </div>
+        <div class="context-menu-item" style="color:var(--danger);" onclick="contextAction('delete')">
+            <svg class="icon icon-sm" viewBox="0 0 24 24" style="fill:var(--danger)"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+            Delete section
+        </div>
+    </div>
+
+    <!-- Hidden File Input -->
+    <input type="file" id="imageUpload" accept="image/*" style="display:none;">
+    <input type="file" id="importFile" accept=".html,.json" style="display:none;">
+
+    <script>
+        // State
+        let sectionCounter = 7;
+        let selectedSection = null;
+        let currentPage = 'home';
+        let isPreviewMode = false;
+        let undoStack = [];
+        let redoStack = [];
+        let contextTarget = null;
+        let currentImageTarget = null;
+
+        const pages = {
+            home: null,
+            about: null,
+            contact: null
+        };
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            saveState();
+            updateSectionCount();
+
+            // Auto-save
+            setInterval(() => {
+                saveToLocalStorage();
+            }, 30000);
+
+            // Load from localStorage
+            loadFromLocalStorage();
+        });
+
+        // Toggle Panels
+        document.getElementById('togglePages').addEventListener('click', () => {
+            const panel = document.getElementById('pagesPanel');
+            const overlay = document.getElementById('panelOverlay');
+            if (window.innerWidth <= 1024) {
+                panel.classList.toggle('open');
+                overlay.classList.toggle('show', panel.classList.contains('open'));
+            } else {
+                panel.classList.toggle('collapsed');
+            }
+        });
+
+        document.getElementById('toggleInsert').addEventListener('click', () => {
+            openInsertPanel();
+        });
+
+        function openInsertPanel() {
+            const panel = document.getElementById('rightPanel');
+            const overlay = document.getElementById('panelOverlay');
+            if (window.innerWidth <= 1024) {
+                panel.classList.toggle('open');
+                overlay.classList.toggle('show', panel.classList.contains('open'));
+            } else {
+                panel.classList.toggle('collapsed');
+            }
+        }
+
+        document.getElementById('panelOverlay').addEventListener('click', () => {
+            document.getElementById('pagesPanel').classList.remove('open');
+            document.getElementById('rightPanel').classList.remove('open');
+            document.getElementById('panelOverlay').classList.remove('show');
+        });
+
+        // More menu
+        document.getElementById('moreBtn').addEventListener('click', (e) => {
+            e.stopPropagation();
+            document.getElementById('moreMenu').classList.toggle('show');
+        });
+
+        document.addEventListener('click', () => {
+            document.getElementById('moreMenu').classList.remove('show');
+            document.getElementById('contextMenu').classList.remove('show');
+        });
+
+        // Right panel tabs
+        function switchRightTab(tab) {
+            document.querySelectorAll('.right-tab').forEach(t => t.classList.remove('active'));
+            document.querySelector(`.right-tab[data-tab="${tab}"]`).classList.add('active');
+            document.getElementById('tab-insert').style.display = tab === 'insert' ? '' : 'none';
+            document.getElementById('tab-properties').style.display = tab === 'properties' ? '' : 'none';
+            document.getElementById('tab-themes').style.display = tab === 'themes' ? '' : 'none';
+        }
+
+        // Section Selection
+        function selectSection(el) {
+            if (isPreviewMode) return;
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('selected'));
+            el.classList.add('selected');
+            selectedSection = el;
+            switchRightTab('properties');
+            updateProperties(el);
+        }
+
+        // Click on canvas but not on section
+        document.getElementById('canvas').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('canvas')) {
+                document.querySelectorAll('.section').forEach(s => s.classList.remove('selected'));
+                selectedSection = null;
+            }
+        });
+
+        // Update Properties Panel
+        function updateProperties(section) {
+            const panel = document.getElementById('propertiesContent');
+            const type = getSectionType(section);
+            let html = `<div class="property-group"><label>Section Type</label><p style="font-size:14px;color:var(--text-primary);text-transform:capitalize;">${type}</p></div>`;
+
+            html += `<div class="property-group"><label>Background Color</label><input type="color" value="${rgbToHex(section.style.backgroundColor || '#1e1e3a')}" onchange="selectedSection.style.backgroundColor=this.value" style="width:100%;height:36px;"></div>`;
+
+            html += `<div class="property-group"><label>Padding</label><div class="property-row"><input type="number" value="${parseInt(getComputedStyle(section).paddingTop) || 40}" onchange="selectedSection.style.paddingTop=this.value+'px';selectedSection.style.paddingBottom=this.value+'px'" placeholder="Vertical" style="width:50%"><input type="number" value="${parseInt(getComputedStyle(section).paddingLeft) || 60}" onchange="selectedSection.style.paddingLeft=this.value+'px';selectedSection.style.paddingRight=this.value+'px'" placeholder="Horizontal" style="width:50%"></div></div>`;
+
+            html += `<div class="property-group"><label>Text Align</label><select onchange="selectedSection.style.textAlign=this.value"><option value="left">Left</option><option value="center">Center</option><option value="right">Right</option></select></div>`;
+
+            html += `<div class="property-group"><label>Background Image URL</label><input type="url" placeholder="https://..." onchange="if(this.value){selectedSection.style.backgroundImage='url('+this.value+')';selectedSection.style.backgroundSize='cover';selectedSection.style.backgroundPosition='center';}else{selectedSection.style.backgroundImage='none';}"></div>`;
+
+            html += `<div class="property-group"><label>CSS Class</label><input type="text" value="${section.className.replace('section ','').replace('selected','').trim()}" onchange="let base='section selected';section.className=base+' '+this.value;"></div>`;
+
+            html += `<div class="property-group"><label>Custom ID</label><input type="text" value="${section.id}" onchange="section.id=this.value"></div>`;
+
+            html += `<div style="margin-top:16px;"><button class="btn btn-danger" onclick="deleteSection(selectedSection)" style="width:100%;justify-content:center;"><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg> Delete Section</button></div>`;
+
+            panel.innerHTML = html;
+        }
+
+        function getSectionType(section) {
+            if (section.classList.contains('section-hero')) return 'hero';
+            if (section.classList.contains('section-text')) return 'text';
+            if (section.classList.contains('section-image')) return 'image';
+            if (section.classList.contains('section-columns')) return 'columns';
+            if (section.classList.contains('section-divider')) return 'divider';
+            if (section.classList.contains('section-button')) return 'button';
+            if (section.classList.contains('section-spacer')) return 'spacer';
+            if (section.classList.contains('section-embed')) return 'embed';
+            if (section.classList.contains('section-collapsible')) return 'collapsible';
+            if (section.classList.contains('section-toc')) return 'table of contents';
+            if (section.classList.contains('section-carousel')) return 'carousel';
+            if (section.classList.contains('section-footer')) return 'footer';
+            return 'custom';
+        }
+
+        // Section CRUD
+        function addSection(type) {
+            saveState();
+            const canvas = document.getElementById('canvas');
+            const addBtn = canvas.querySelector('.add-section-btn');
+            const section = document.createElement('div');
+            section.id = `section-${sectionCounter++}`;
+            section.className = `section section-${type}`;
+            section.setAttribute('onclick', 'selectSection(this)');
+
+            const controls = `<div class="section-controls"><button class="btn btn-icon" onclick="event.stopPropagation(); moveSection(this.closest('.section'), -1)" title="Move up"><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z" fill="#fff"/></svg></button><button class="btn btn-icon" onclick="event.stopPropagation(); moveSection(this.closest('.section'), 1)" title="Move down"><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z" fill="#fff"/></svg></button><button class="btn btn-icon" onclick="event.stopPropagation(); duplicateSection(this.closest('.section'))" title="Duplicate"><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z" fill="#fff"/></svg></button><button class="btn btn-icon" onclick="event.stopPropagation(); deleteSection(this.closest('.section'))" title="Delete"><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" fill="#fff"/></svg></button></div>`;
+
+            switch(type) {
+                case 'hero':
+                    section.className += '';
+                    section.style.cssText = 'text-align:center;padding:80px 60px;background:linear-gradient(135deg,var(--bg-tertiary),var(--bg-secondary));';
+                    section.innerHTML = controls + '<h1 contenteditable="true">Your Heading Here</h1><p contenteditable="true" style="font-size:18px;color:var(--text-secondary);max-width:600px;margin:0 auto 24px;line-height:1.6;">Add a subheading that provides more context about your page.</p><div class="hero-btn" contenteditable="true">Call to Action</div>';
+                    break;
+                case 'text':
+                    section.innerHTML = controls + '<h2 contenteditable="true">Section Title</h2><p contenteditable="true" style="font-size:16px;line-height:1.7;color:var(--text-secondary);">Start typing your content here. Click to edit this text block and add your own content.</p>';
+                    break;
+                case 'image':
+                    section.innerHTML = controls + '<div class="image-placeholder" onclick="event.stopPropagation(); uploadImage(this)"><svg class="icon icon-lg" viewBox="0 0 24 24" style="width:48px;height:48px;"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg><span>Click to upload image</span></div>';
+                    break;
+                case 'columns':
+                    section.innerHTML = controls + '<div class="columns-grid"><div class="column-item"><div class="column-icon"><svg class="icon icon-lg" viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z" fill="currentColor"/></svg></div><h3 contenteditable="true">Feature One</h3><p contenteditable="true">Describe this feature briefly.</p></div><div class="column-item"><div class="column-icon"><svg class="icon icon-lg" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" fill="currentColor"/></svg></div><h3 contenteditable="true">Feature Two</h3><p contenteditable="true">Describe this feature briefly.</p></div><div class="column-item"><div class="column-icon"><svg class="icon icon-lg" viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z" fill="currentColor"/></svg></div><h3 contenteditable="true">Feature Three</h3><p contenteditable="true">Describe this feature briefly.</p></div></div>';
+                    break;
+                case 'button':
+                    section.innerHTML = controls + '<button class="site-button" contenteditable="true">Click Me</button>';
+                    break;
+                case 'divider':
+                    section.innerHTML = controls + '<hr>';
+                    break;
+                case 'spacer':
+                    section.style.minHeight = '60px';
+                    section.innerHTML = controls;
+                    break;
+                case 'embed':
+                    section.innerHTML = controls + '<div class="embed-placeholder" onclick="event.stopPropagation(); openEmbedModal(this)"><svg class="icon icon-lg" viewBox="0 0 24 24" style="width:48px;height:48px;"><path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z"/></svg><span>Click to embed content</span></div>';
+                    break;
+                case 'collapsible':
+                    section.innerHTML = controls + '<div class="collapsible-item"><div class="collapsible-header" onclick="event.stopPropagation(); toggleCollapsible(this)"><span contenteditable="true">Collapsible Title</span><svg class="icon icon-sm" viewBox="0 0 24 24" style="transition:0.2s;"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg></div><div class="collapsible-body" contenteditable="true">Collapsible content goes here.</div></div><div class="collapsible-item"><div class="collapsible-header" onclick="event.stopPropagation(); toggleCollapsible(this)"><span contenteditable="true">Another Item</span><svg class="icon icon-sm" viewBox="0 0 24 24" style="transition:0.2s;"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg></div><div class="collapsible-body" contenteditable="true">More content here.</div></div>';
+                    break;
+                case 'toc':
+                    section.innerHTML = controls + '<h2 contenteditable="true" style="margin-bottom:12px;">Table of Contents</h2><ul class="toc-list"><li><a href="#" contenteditable="true">Section 1</a></li><li><a href="#" contenteditable="true">Section 2</a></li><li><a href="#" contenteditable="true">Section 3</a></li></ul>';
+                    break;
+                case 'carousel':
+                    section.innerHTML = controls + '<div class="carousel-container"><div class="carousel-slide">Slide 1</div><div class="carousel-slide">Slide 2</div><div class="carousel-slide">Slide 3</div><div class="carousel-slide">Slide 4</div></div>';
+                    break;
+                case 'footer':
+                    section.innerHTML = controls + '<p contenteditable="true">© 2024 Your Website. All rights reserved.</p>';
+                    break;
+                case 'youtube':
+                    section.className = 'section section-embed';
+                    section.innerHTML = controls + '<div class="embed-placeholder" onclick="event.stopPropagation(); openEmbedModal(this)" style="height:350px;"><svg class="icon" viewBox="0 0 24 24" style="width:64px;height:64px;"><path d="M10 15l5.19-3L10 9v6m11.56-7.83c.13.47.22 1.1.28 1.9.07.8.1 1.49.1 2.09L22 12c0 2.19-.16 3.8-.44 4.83-.25.9-.83 1.48-1.73 1.73-.47.13-1.33.22-2.65.28-1.3.07-2.49.1-3.59.1L12 19c-4.19 0-6.8-.16-7.83-.44-.9-.25-1.48-.83-1.73-1.73-.13-.47-.22-1.1-.28-1.9-.07-.8-.1-1.49-.1-2.09L2 12c0-2.19.16-3.8.44-4.83.25-.9.83-1.48 1.73-1.73.47-.13 1.33-.22 2.65-.28 1.3-.07 2.49-.1 3.59-.1L12 5c4.19 0 6.8.16 7.83.44.9.25 1.48.83 1.73 1.73z"/></svg><span>Click to add YouTube video URL</span></div>';
+                    break;
+                case 'map':
+                    section.className = 'section section-embed';
+                    section.innerHTML = controls + '<div class="embed-placeholder" onclick="event.stopPropagation(); openEmbedModal(this)" style="height:350px;"><svg class="icon" viewBox="0 0 24 24" style="width:64px;height:64px;"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg><span>Click to add Google Maps embed</span></div>';
+                    break;
+            }
+
+            canvas.insertBefore(section, addBtn);
+            updateSectionCount();
+            selectSection(section);
+            section.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            showNotification(`${type.charAt(0).toUpperCase() + type.slice(1)} section added`);
+        }
+
+        function deleteSection(section) {
+            if (!section) return;
+            saveState();
+            section.remove();
+            selectedSection = null;
+            updateSectionCount();
+            showNotification('Section deleted');
+        }
+
+        function duplicateSection(section) {
+            if (!section) return;
+            saveState();
+            const clone = section.cloneNode(true);
+            clone.id = `section-${sectionCounter++}`;
+            clone.classList.remove('selected');
+            section.parentNode.insertBefore(clone, section.nextSibling);
+            updateSectionCount();
+            showNotification('Section duplicated');
+        }
+
+        function moveSection(section, direction) {
+            if (!section) return;
+            saveState();
+            const parent = section.parentNode;
+            if (direction === -1 && section.previousElementSibling && section.previousElementSibling.classList.contains('section')) {
+                parent.insertBefore(section, section.previousElementSibling);
+            } else if (direction === 1 && section.nextElementSibling && section.nextElementSibling.classList.contains('section')) {
+                parent.insertBefore(section.nextElementSibling, section);
+            }
+        }
+
+        // Collapsible toggle
+        function toggleCollapsible(header) {
+            header.closest('.collapsible-item').classList.toggle('open');
+        }
+
+        // Image Upload
+        function uploadImage(placeholder) {
+            currentImageTarget = placeholder;
+            document.getElementById('imageUpload').click();
+        }
+
+        document.getElementById('imageUpload').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file && currentImageTarget) {
+                const reader = new FileReader();
+                reader.onload = function(ev) {
+                    currentImageTarget.innerHTML = `<img src="${ev.target.result}" alt="Uploaded image" style="width:100%;height:100%;object-fit:cover;border-radius:var(--radius);">`;
+                    currentImageTarget.style.border = 'none';
+                };
+                reader.readAsDataURL(file);
+            }
+            this.value = '';
+        });
+
+        // Text formatting
+        function execCmd(cmd, value) {
+            document.execCommand(cmd, false, value || null);
+        }
+        function execFontSize(size) {
+            document.execCommand('fontSize', false, size);
+        }
+
+        // Link
+        function insertLink() {
+            const sel = window.getSelection();
+            if (sel && sel.toString()) {
+                document.getElementById('linkText').value = sel.toString();
+            }
+            openModal('linkModal');
+        }
+
+        function applyLink() {
+            const url = document.getElementById('linkUrl').value;
+            const text = document.getElementById('linkText').value;
+            if (url) {
+                document.execCommand('createLink', false, url);
+                showNotification('Link inserted');
+            }
+            closeModal('linkModal');
+        }
+
+        // Embed
+        let currentEmbedTarget = null;
+        function openEmbedModal(el) {
+            currentEmbedTarget = el;
+            openModal('embedModal');
+        }
+
+        function applyEmbed() {
+            const code = document.getElementById('embedCode').value.trim();
+            if (code && currentEmbedTarget) {
+                if (code.startsWith('http')) {
+                    // YouTube
+                    let embedUrl = code;
+                    if (code.includes('youtube.com/watch')) {
+                        const vid = new URL(code).searchParams.get('v');
+                        embedUrl = `https://www.youtube.com/embed/${vid}`;
+                    } else if (code.includes('youtu.be/')) {
+                        const vid = code.split('youtu.be/')[1].split('?')[0];
+                        embedUrl = `https://www.youtube.com/embed/${vid}`;
+                    }
+                    currentEmbedTarget.innerHTML = `<iframe src="${embedUrl}" width="100%" height="100%" style="border:none;border-radius:var(--radius);" allowfullscreen></iframe>`;
+                    currentEmbedTarget.style.border = 'none';
+                } else {
+                    currentEmbedTarget.innerHTML = code;
+                    currentEmbedTarget.style.border = 'none';
+                }
+                showNotification('Content embedded');
+            }
+            closeModal('embedModal');
+            document.getElementById('embedCode').value = '';
+        }
+
+        // Pages
+        function switchPage(pageId) {
+            // Save current page content
+            pages[currentPage] = document.getElementById('canvas').innerHTML;
+
+            document.querySelectorAll('.page-item').forEach(p => p.classList.remove('active'));
+            document.querySelector(`.page-item[data-page="${pageId}"]`).classList.add('active');
+
+            currentPage = pageId;
+            document.getElementById('currentPageStatus').textContent = `Page: ${pageId.charAt(0).toUpperCase() + pageId.slice(1)}`;
+
+            // Load page content
+            if (pages[pageId]) {
+                document.getElementById('canvas').innerHTML = pages[pageId];
+            } else {
+                document.getElementById('canvas').innerHTML = `
+                    <div class="section section-text" id="section-${sectionCounter++}" onclick="selectSection(this)">
+                        <div class="section-controls"><button class="btn btn-icon" onclick="event.stopPropagation(); moveSection(this.closest('.section'), -1)" title="Move up"><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z" fill="#fff"/></svg></button><button class="btn btn-icon" onclick="event.stopPropagation(); moveSection(this.closest('.section'), 1)" title="Move down"><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z" fill="#fff"/></svg></button><button class="btn btn-icon" onclick="event.stopPropagation(); duplicateSection(this.closest('.section'))" title="Duplicate"><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z" fill="#fff"/></svg></button><button class="btn btn-icon" onclick="event.stopPropagation(); deleteSection(this.closest('.section'))" title="Delete"><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" fill="#fff"/></svg></button></div>
+                        <h2 contenteditable="true">${pageId.charAt(0).toUpperCase() + pageId.slice(1)}</h2>
+                        <p contenteditable="true">This is the ${pageId} page. Click to edit this content.</p>
+                    </div>
+                    <button class="add-section-btn" onclick="openInsertPanel()"><svg class="icon" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg> Add section</button>
+                `;
+            }
+            updateSectionCount();
+
+            // Close mobile panel
+            if (window.innerWidth <= 1024) {
+                document.getElementById('pagesPanel').classList.remove('open');
+                document.getElementById('panelOverlay').classList.remove('show');
+            }
+        }
+
+        function addPage() {
+            const name = prompt('Enter page name:');
+            if (!name) return;
+            const id = name.toLowerCase().replace(/\s+/g, '-');
+            if (pages[id] !== undefined) {
+                showNotification('Page already exists!');
+                return;
+            }
+            pages[id] = null;
+
+            const pageItem = document.createElement('div');
+            pageItem.className = 'page-item';
+            pageItem.setAttribute('data-page', id);
+            pageItem.setAttribute('onclick', `switchPage('${id}')`);
+            pageItem.innerHTML = `
+                <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z"/></svg>
+                <span>${name}</span>
+                <div class="page-actions">
+                    <button class="btn btn-icon" onclick="event.stopPropagation(); renamePage('${id}')" title="Rename"><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg></button>
+                    <button class="btn btn-icon btn-danger" onclick="event.stopPropagation(); deletePage('${id}')" title="Delete"><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></button>
+                </div>
+            `;
+
+            document.getElementById('pagesList').appendChild(pageItem);
+            showNotification(`Page "${name}" created`);
+            switchPage(id);
+        }
+
+        function deletePage(pageId) {
+            if (pageId === 'home') {
+                showNotification('Cannot delete home page');
+                return;
+            }
+            if (!confirm(`Delete page "${pageId}"?`)) return;
+            delete pages[pageId];
+            const el = document.querySelector(`.page-item[data-page="${pageId}"]`);
+            if (el) el.remove();
+            if (currentPage === pageId) switchPage('home');
+            showNotification('Page deleted');
+        }
+
+        function renamePage(pageId) {
+            const newName = prompt('New page name:');
+            if (!newName) return;
+            const el = document.querySelector(`.page-item[data-page="${pageId}"] span`);
+            if (el) el.textContent = newName;
+            showNotification('Page renamed');
+        }
+
+        function duplicatePage() {
+            const name = currentPage + '-copy';
+            pages[name] = document.getElementById('canvas').innerHTML;
+            addPage();
+            showNotification('Page duplicated');
+        }
+
+        // Preview
+        document.getElementById('previewBtn').addEventListener('click', () => {
+            enterPreview();
+        });
+
+        function enterPreview() {
+            isPreviewMode = true;
+            document.querySelector('.header').style.display = 'none';
+            document.getElementById('pagesPanel').style.display = 'none';
+            document.getElementById('rightPanel').style.display = 'none';
+            document.querySelector('.toolbar').style.display = 'none';
+            document.querySelector('.status-bar').style.display = 'none';
+            document.getElementById('previewBanner').classList.add('show');
+            document.querySelector('.main-layout').style.height = 'calc(100vh - 48px)';
+            document.querySelector('.main-layout').style.marginTop = '48px';
+
+            // Disable editing
+            document.querySelectorAll('[contenteditable]').forEach(el => el.setAttribute('contenteditable', 'false'));
+            document.querySelectorAll('.section-controls').forEach(el => el.style.display = 'none');
+            document.querySelectorAll('.add-section-btn').forEach(el => el.style.display = 'none');
+            document.querySelectorAll('.section').forEach(s => {
+                s.style.cursor = 'default';
+                s.onclick = null;
+            });
+        }
+
+        function exitPreview() {
+            isPreviewMode = false;
+            document.querySelector('.header').style.display = '';
+            document.getElementById('pagesPanel').style.display = '';
+            document.getElementById('rightPanel').style.display = '';
+            document.querySelector('.toolbar').style.display = '';
+            document.querySelector('.status-bar').style.display = '';
+            document.getElementById('previewBanner').classList.remove('show');
+            document.querySelector('.main-layout').style.height = '';
+            document.querySelector('.main-layout').style.marginTop = '';
+
+            document.querySelectorAll('[contenteditable="false"]').forEach(el => el.setAttribute('contenteditable', 'true'));
+            document.querySelectorAll('.section-controls').forEach(el => el.style.display = '');
+            document.querySelectorAll('.add-section-btn').forEach(el => el.style.display = '');
+            document.querySelectorAll('.section').forEach(s => {
+                s.style.cursor = '';
+                s.setAttribute('onclick', 'selectSection(this)');
+            });
+        }
+
+        // Device Preview
+        function setPreviewDevice(device) {
+            const canvas = document.getElementById('canvas');
+            canvas.classList.remove('phone-preview', 'tablet-preview');
+            document.querySelectorAll('#deviceDesktop, #deviceTablet, #devicePhone').forEach(b => b.style.color = '');
+
+            if (device === 'phone') {
+                canvas.classList.add('phone-preview');
+                document.getElementById('devicePhone').style.color = 'var(--accent)';
+            } else if (device === 'tablet') {
+                canvas.classList.add('tablet-preview');
+                document.getElementById('deviceTablet').style.color = 'var(--accent)';
+            } else {
+                document.getElementById('deviceDesktop').style.color = 'var(--accent)';
+            }
+        }
+
+        // Undo/Redo
+        function saveState() {
+            undoStack.push(document.getElementById('canvas').innerHTML);
+            if (undoStack.length > 50) undoStack.shift();
+            redoStack = [];
+        }
+
+        document.getElementById('undoBtn').addEventListener('click', () => {
+            if (undoStack.length === 0) return;
+            redoStack.push(document.getElementById('canvas').innerHTML);
+            document.getElementById('canvas').innerHTML = undoStack.pop();
+            updateSectionCount();
+            showNotification('Undo');
+        });
+
+        document.getElementById('redoBtn').addEventListener('click', () => {
+            if (redoStack.length === 0) return;
+            undoStack.push(document.getElementById('canvas').innerHTML);
+            document.getElementById('canvas').innerHTML = redoStack.pop();
+            updateSectionCount();
+            showNotification('Redo');
+        });
+
+        // Keyboard Shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey || e.metaKey) {
+                if (e.key === 'z') { e.preventDefault(); document.getElementById('undoBtn').click(); }
+                if (e.key === 'y') { e.preventDefault(); document.getElementById('redoBtn').click(); }
+                if (e.key === 's') { e.preventDefault(); saveToLocalStorage(); showNotification('Saved!'); }
+            }
+            if (e.key === 'Delete' && selectedSection && document.activeElement.tagName !== 'INPUT' && !document.activeElement.hasAttribute('contenteditable')) {
+                deleteSection(selectedSection);
+            }
+        });
+
+        // Context Menu
+        document.getElementById('canvas').addEventListener('contextmenu', (e) => {
+            const section = e.target.closest('.section');
+            if (section && !isPreviewMode) {
+                e.preventDefault();
+                contextTarget = section;
+                selectSection(section);
+                const menu = document.getElementById('contextMenu');
+                menu.style.left = e.clientX + 'px';
+                menu.style.top = e.clientY + 'px';
+                menu.classList.add('show');
+            }
+        });
+
+        function contextAction(action) {
+            if (!contextTarget) return;
+            switch(action) {
+                case 'duplicate': duplicateSection(contextTarget); break;
+                case 'delete': deleteSection(contextTarget); break;
+                case 'cut': saveState(); navigator.clipboard.writeText(contextTarget.outerHTML); contextTarget.remove(); updateSectionCount(); showNotification('Cut'); break;
+                case 'copy': navigator.clipboard.writeText(contextTarget.outerHTML); showNotification('Copied'); break;
+                case 'paste':
+                    navigator.clipboard.readText().then(text => {
+                        if (text.startsWith('<div')) {
+                            contextTarget.insertAdjacentHTML('afterend', text);
+                            updateSectionCount();
+                            showNotification('Pasted');
+                        }
+                    }).catch(() => showNotification('Cannot paste'));
+                    break;
+            }
+            document.getElementById('contextMenu').classList.remove('show');
+        }
+
+        // Modals
+        function openModal(id) {
+            document.getElementById(id).classList.add('show');
+        }
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('show');
+        }
+        function openThemeModal() {
+            openModal('themeModal');
+        }
+        function showSiteSettings() {
+            document.getElementById('settingSiteTitle').value = document.getElementById('siteTitle').value;
+            openModal('settingsModal');
+        }
+        function saveSettings() {
+            document.getElementById('siteTitle').value = document.getElementById('settingSiteTitle').value;
+            closeModal('settingsModal');
+            showNotification('Settings saved!');
+        }
+
+        // Themes
+        function applyTheme(el, color) {
+            document.querySelectorAll('.theme-option').forEach(t => t.classList.remove('active'));
+            el.classList.add('active');
+            document.getElementById('canvas').style.background = color;
+        }
+
+        function selectThemeOption(el, theme) {
+            el.closest('.theme-grid').querySelectorAll('.theme-option').forEach(t => t.classList.remove('active'));
+            el.classList.add('active');
+        }
+
+        function changeAccentColor(color) {
+            document.documentElement.style.setProperty('--accent', color);
+            document.documentElement.style.setProperty('--accent-hover', color);
+            document.documentElement.style.setProperty('--accent-light', color + '26');
+        }
+
+        function changeSectionPadding(value) {
+            document.querySelectorAll('.section').forEach(s => {
+                s.style.padding = value;
+            });
+        }
+
+        // Export
+        function exportSite() {
+            // Save current page
+            pages[currentPage] = document.getElementById('canvas').innerHTML;
+
+            let html = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>${document.getElementById('siteTitle').value}</title><style>*{margin:0;padding:0;box-sizing:border-box;}body{font-family:'Segoe UI',sans-serif;background:#1a1a2e;color:#e0e0e0;}.page{max-width:900px;margin:0 auto;}.section{padding:40px 60px;}.section-hero{text-align:center;padding:80px 60px;background:linear-gradient(135deg,#0f3460,#16213e);}h1{font-size:42px;margin-bottom:16px;}h2{font-size:28px;margin-bottom:12px;}p{font-size:16px;line-height:1.7;color:#a0a0b0;}.columns-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:24px;}.column-item{padding:24px;background:rgba(255,255,255,0.05);border-radius:8px;text-align:center;}.hero-btn,.site-button{display:inline-block;padding:12px 32px;background:#4a9eff;color:#fff;border-radius:24px;font-size:16px;text-decoration:none;border:none;cursor:pointer;}.collapsible-header{padding:14px 18px;background:rgba(255,255,255,0.05);cursor:pointer;}.collapsible-body{padding:14px 18px;display:none;}@media(max-width:768px){.section{padding:24px 20px;}.section-hero{padding:40px 20px;}h1{font-size:28px;}.columns-grid{grid-template-columns:1fr;}}</style></head><body>`;
+
+            // Get clean content (remove controls)
+            const tempDiv = document.createElement('div');
+            for (const pageId in pages) {
+                const content = pages[pageId] || '';
+                tempDiv.innerHTML = content;
+                tempDiv.querySelectorAll('.section-controls').forEach(c => c.remove());
+                tempDiv.querySelectorAll('.add-section-btn').forEach(c => c.remove());
+                tempDiv.querySelectorAll('.section-drag-handle').forEach(c => c.remove());
+                tempDiv.querySelectorAll('[contenteditable]').forEach(c => c.removeAttribute('contenteditable'));
+                tempDiv.querySelectorAll('[onclick]').forEach(c => c.removeAttribute('onclick'));
+                tempDiv.querySelectorAll('.section').forEach(s => {
+                    s.classList.remove('selected');
+                    s.style.cursor = '';
+                    s.style.border = '';
+                });
+                html += `<div class="page" id="page-${pageId}">${tempDiv.innerHTML}</div>`;
+            }
+
+            html += `</body></html>`;
+
+            const blob = new Blob([html], {type: 'text/html'});
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = (document.getElementById('siteTitle').value || 'site') + '.html';
+            a.click();
+            showNotification('Site exported!');
+        }
+
+        function importSite() {
+            document.getElementById('importFile').click();
+        }
+
+        document.getElementById('importFile').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(ev) {
+                    const content = ev.target.result;
+                    if (file.name.endsWith('.json')) {
+                        try {
+                            const data = JSON.parse(content);
+                            if (data.canvas) {
+                                document.getElementById('canvas').innerHTML = data.canvas;
+                            }
+                            showNotification('Site imported!');
+                        } catch(err) {
+                            showNotification('Invalid file format');
+                        }
+                    }
+                };
+                reader.readAsText(file);
+            }
+            this.value = '';
+        });
+
+        function publishSite() {
+            showNotification('Site published successfully!');
+        }
+
+        // LocalStorage
+        function saveToLocalStorage() {
+            pages[currentPage] = document.getElementById('canvas').innerHTML;
+            const data = {
+                title: document.getElementById('siteTitle').value,
+                pages: pages,
+                currentPage: currentPage
+            };
+            try {
+                localStorage.setItem('sitecraft-data', JSON.stringify(data));
+            } catch(e) {}
+        }
+
+        function loadFromLocalStorage() {
+            try {
+                const saved = localStorage.getItem('sitecraft-data');
+                if (saved) {
+                    const data = JSON.parse(saved);
+                    if (data.title) document.getElementById('siteTitle').value = data.title;
+                    if (data.pages) {
+                        Object.assign(pages, data.pages);
+                    }
+                    if (data.currentPage && data.pages[data.currentPage]) {
+                        currentPage = data.currentPage;
+                        document.getElementById('canvas').innerHTML = data.pages[data.currentPage];
+                        updateSectionCount();
+                    }
+                }
+            } catch(e) {}
+        }
+
+        // Helpers
+        function updateSectionCount() {
+            const count = document.querySelectorAll('#canvas .section').length;
+            document.getElementById('sectionCount').textContent = `${count} section${count !== 1 ? 's' : ''}`;
+        }
+
+        function showNotification(text) {
+            const el = document.getElementById('notification');
+            document.getElementById('notificationText').textContent = text;
+            el.classList.add('show');
+            setTimeout(() => el.classList.remove('show'), 2500);
+        }
+
+        function rgbToHex(color) {
+            if (color.startsWith('#')) return color;
+            if (!color || color === 'transparent') return '#1e1e3a';
+            const parts = color.match(/\d+/g);
+            if (!parts) return '#1e1e3a';
+            const r = parseInt(parts[0]).toString(16).padStart(2,'0');
+            const g = parseInt(parts[1]).toString(16).padStart(2,'0');
+            const b = parseInt(parts[2]).toString(16).padStart(2,'0');
+            return `#${r}${g}${b}`;
+        }
+
+        // Drag and Drop Sections
+        let draggedSection = null;
+
+        document.getElementById('canvas').addEventListener('dragstart', (e) => {
+            if (e.target.classList.contains('section')) {
+                draggedSection = e.target;
+                e.target.style.opacity = '0.5';
+            }
+        });
+
+        document.getElementById('canvas').addEventListener('dragend', (e) => {
+            if (draggedSection) {
+                draggedSection.style.opacity = '';
+                draggedSection = null;
+            }
+        });
+
+        document.getElementById('canvas').addEventListener('dragover', (e) => {
+            e.preventDefault();
+            const section = e.target.closest('.section');
+            if (section && section !== draggedSection) {
+                const rect = section.getBoundingClientRect();
+                const mid = rect.top + rect.height / 2;
+                if (e.clientY < mid) {
+                    section.parentNode.insertBefore(draggedSection, section);
+                } else {
+                    section.parentNode.insertBefore(draggedSection, section.nextSibling);
+                }
+            }
+        });
+
+        // Make sections draggable
+        document.querySelectorAll('.section').forEach(s => {
+            s.setAttribute('draggable', 'true');
+        });
+
+        // MutationObserver to make new sections draggable
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach(m => {
+                m.addedNodes.forEach(node => {
+                    if (node.classList && node.classList.contains('section')) {
+                        node.setAttribute('draggable', 'true');
+                    }
+                });
+            });
+        });
+        observer.observe(document.getElementById('canvas'), { childList: true });
+
+        // Auto-save on content changes
+        let saveTimeout;
+        document.getElementById('canvas').addEventListener('input', () => {
+            clearTimeout(saveTimeout);
+            saveTimeout = setTimeout(() => saveToLocalStorage(), 2000);
+        });
+    </script>
+</body>
+</html>
